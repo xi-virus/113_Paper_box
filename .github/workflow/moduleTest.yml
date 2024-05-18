@@ -22,7 +22,7 @@ jobs:
           cp LICENSE release/
           cp README.md release/
           cp src/cfg_docker/dockerfile release/
-          cp src/scr_paperPassBox/boxInitialize.sh release/
+          cp src/src_paperPassBox/boxInitialize.sh release/
 
       # 打包檔案(2/2)-壓縮上傳
       - name: 打包檔案(2/2)-壓縮上傳
@@ -48,7 +48,7 @@ jobs:
       # 執行Pytest測試(2/3)-安裝pipenv並復原虛擬環境
       - name: 執行Pytest測試(2/3)-安裝pipenv並復原虛擬環境
         run: |
-          cp -R src/scr_paperPassBox_test test
+          cp -R src/src_paperPassBox_test test
           cd test
           pip install pipenv
           pipenv install --deploy --ignore-pipfile          
