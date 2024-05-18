@@ -5,7 +5,7 @@ Request Prompt to ChatGPT
 # 目的 
 
 ## 未來運用構想：
-  我有一個腳本 boxInitialize.sh，可以設置一個簡單的容易受攻擊的 Ubuntu 環境，適用於學術演示。
+  我有一個腳本 boxInitialize.sh，可以設置一個簡單的容易受攻擊的 Kali 環境，適用於學術演示。
 
 ## 擬請ChatGPT提供：
   請提供一個 Dockerfile 來實現以下工作。
