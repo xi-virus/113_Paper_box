@@ -15,6 +15,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   dos2unix \
   && rm -rf /var/lib/apt/lists/*
 
+# 创建 /run/sshd 目录
+RUN mkdir -p /run/sshd
+
 # 初始化設定
 # 複製 boxInitialize.sh 腳本到容器的 /root 目錄
 COPY boxInitialize.sh /root/boxInitialize.sh
@@ -32,3 +35,4 @@ CMD ["/usr/sbin/sshd", "-D"]
 # 設定網路
 # 開放 22 端口以啟用 SSH 連線
 EXPOSE 22
+
