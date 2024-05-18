@@ -1,10 +1,8 @@
 # 此 GitHub Workflow 的功能是將指定文件複製到名為 release 的文件夾中，然後使用這些文件來構建和運行 Docker 容器，並進行測試。使用說明：
 # 1. 將此文件保存為 .github/workflows/moduleTest.yml。
 # 2. 當推送到 main 分支或 pull request 事件發生時，此工作流程將自動執行。
-
 name: moduleTest
 
-# 當 push 發生在 main 分支時觸發
 on:
   push:
     branches:
@@ -12,7 +10,7 @@ on:
 
 jobs:
   build_and_test:
-    runs-on: ubuntu-latest  # 使用通用的 ubuntu-latest runner，因為 GitHub-hosted runner 中沒有 kali-latest
+    runs-on: ubuntu-latest
 
     steps:
       # 取出代碼
@@ -25,7 +23,7 @@ jobs:
           mkdir release
           cp LICENSE release/
           cp README.md release/
-          cp src/cfg_docker/dockerfile release/
+          cp src/cfg_docker/dockerfile release/Dockerfile  # 確保Dockerfile命名正確
           cp src/src_paperPassBox/boxInitialize.sh release/
 
       # 打包檔案(2/2)-壓縮上傳
@@ -42,6 +40,15 @@ jobs:
           cd deployment
           docker build -t myapp:latest .
           docker run -d -p 2222:22 --name myapp_container myapp:latest
+          docker ps -a  # 列出所有容器以進行調試
+
+      # 等待容器啟動
+      - name: 等待容器啟動
+        run: sleep 30  # 等待一段時間以確保SSH服務啟動
+
+      # 檢查容器日誌
+      - name: 檢查容器日誌
+        run: docker logs myapp_container  # 顯示容器日誌以幫助調試
 
       # 執行Pytest測試個案(1/3)-安裝Python(須配合pipenv版本)
       - name: 執行Pytest測試個案(1/3)-安裝Python(須配合pipenv版本)
@@ -62,4 +69,3 @@ jobs:
         run: |
           cd test
           pipenv run pytest
-
