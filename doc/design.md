@@ -1,6 +1,6 @@
 Paper Pass Box 設計說明
 ====
-> github.com/carlton0521
+> github.com/xi-virus
 
 # 摘要說明
 
