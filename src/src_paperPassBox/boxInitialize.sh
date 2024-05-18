@@ -7,6 +7,7 @@
 # 4. 給腳本執行許可權: chmod +x boxInitialize.sh
 # 5. 執行腳本: ./boxInitialize.sh
 
+
 echo "==========================================="
 echo "電力公司遠端作業系統建置規劃"
 echo "==========================================="
@@ -15,6 +16,7 @@ echo ""
 echo "正在初始化環境..."
 # 刪除先前的網站目錄及其內容（如果存在）
 rm -rf /var/www/html/*
+echo "已刪除 /var/www/html/ 目錄"
 
 echo ""
 echo "步驟1：準備階段"
@@ -26,7 +28,6 @@ echo "已選擇 kali 作為作業系統"
 echo "必要軟體安裝：安裝 OpenSSH 服務、Apache2、PHP、libapache2-mod-php 和 sudo"
 apt update
 apt install -y openssh-server apache2 php libapache2-mod-php sudo
-
 echo "OpenSSH 服務、Apache2、PHP 和 sudo 安裝完成"
 
 echo ""
@@ -38,6 +39,7 @@ mkdir -p /var/www/html/public
 mkdir -p /var/www/html/private
 mkdir -p /var/www/html/.hidden_login_page
 mkdir -p /var/www/html/login_success
+echo "網站結構已創建"
 
 # 設置初始頁面
 tee /var/www/html/index.php > /dev/null <<EOF
@@ -46,6 +48,7 @@ echo "<h1>Welcome to the Power Company Website</h1>";
 echo "<p>This is the public website for the Power Company.</p>";
 ?>
 EOF
+echo "初始頁面已設置"
 
 # 登錄頁面處理
 tee /var/www/html/.hidden_login_page/login.php > /dev/null <<'EOF'
@@ -76,6 +79,7 @@ if (!empty($_POST['username']) && !empty($_POST['password'])) {
 </body>
 </html>
 EOF
+echo "登錄頁面已設置"
 
 # 成功登錄頁面
 tee /var/www/html/login_success/login_success.php > /dev/null <<EOF
@@ -88,7 +92,6 @@ tee /var/www/html/login_success/login_success.php > /dev/null <<EOF
 <?php
     session_start();
     if (empty($_SESSION['logged_in'])) {
-        // If not logged in, redirect to the homepage or login page
         header('Location: /');
         exit;
     }
@@ -105,6 +108,7 @@ tee /var/www/html/login_success/login_success.php > /dev/null <<EOF
 </body>
 </html>
 EOF
+echo "成功登錄頁面已設置"
 
 # Apache 配置
 tee /etc/apache2/sites-available/000-default.conf > /dev/null <<'EOF'
@@ -147,15 +151,22 @@ tee /etc/apache2/sites-available/000-default.conf > /dev/null <<'EOF'
     CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
 EOF
+echo "Apache 配置已設置"
 
 # 重新啟動 Apache 以確保所有配置生效
 service apache2 restart
+echo "Apache 已重新啟動"
 
 echo "步驟3：創建普通用戶帳戶"
 echo "----------------------"
 useradd -m -p $(openssl passwd -1 "pzword") -s /bin/bash user
 usermod -aG sudo user
 echo "使用者帳號和弱密碼已創建。用戶名：user, 密碼：pzword"
+
+# 確認用戶創建
+id user
+grep user /etc/shadow
+echo "已確認 user 帳號創建"
 
 echo ""
 echo "步驟4：配置敏感檔訪問和管理"
@@ -166,23 +177,29 @@ tee /root/root_password.txt > /dev/null <<EOF
 root password: david3309
 EOF
 chmod 644 /root/root_password.txt
+echo "已創建 /root/root_password.txt"
 
-echo "創建一個標誌檔，僅root可訪問"
+# 創建一個標誌檔，僅root可訪問
 tee /root/root_flag.txt > /dev/null <<EOF
 flag{take_the_own_:D}
 EOF
 chmod 600 /root/root_flag.txt
+echo "已創建 /root/root_flag.txt"
 
 # 設置 root 用戶密碼
 echo "root:david3309" | chpasswd
+echo "已設置 root 密碼"
 
 # 配置 sshd_config 以允許 root 登錄
 sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 service ssh restart
+echo "SSH 配置已更新並重新啟動"
 
 # 驗證配置
 grep PermitRootLogin /etc/ssh/sshd_config
 grep root /etc/shadow
+grep user /etc/shadow
+echo "已確認 SSH 配置"
 
 echo ""
 echo "靶機建設完成！"
